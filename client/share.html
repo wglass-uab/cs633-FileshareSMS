@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<title>Share</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+ <link href="css/shared.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header>
+    <nav class="d-flex justify-content-between align-items-stretch">
+      <a class="inventory-link" href="javascript:void(0)"><h1>Fileshare</h1></a>
+      <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+			      <a class="nav-link" href="#" data-bs-toggle="dropdown">
+              <img src="/img/logout.png" height=30 width=30>
+            </a>
+		        <ul class="dropdown-menu">
+			        <li><a class="dropdown-item" href="login">Logout</a></li>
+		        </ul>
+		      </li>
+        </ul>
+    </nav>
+</header>
+<main>
+  <fieldset>
+  <legend>What would you like to share?</legend>
+  <form id="fileshare-form" enctype="multipart/form-data"
+    class="d-grid flex-column align-items-center justify-content-between"
+  >
+    <input class="form-control" id="sharefile" type="file" name="sharefile" required>
+    <input class="form-control" type="tel" name="phone" placeholder="123-456-7890" required>
+    <input class="form-control" type="tel" name="phone" placeholder="(Optional) 123-456-7890">
+    <input class="form-control" type="tel" name="phone" placeholder="(Optional) 123-456-7890">
+    <input class="form-control" type="tel" name="phone" placeholder="(Optional) 123-456-7890">
+    <input class="form-control" type="tel" name="phone" placeholder="(Optional) 123-456-7890">
+    <button id="submit-fileshare" class="btn btn-primary" type="submit">Share File</button>
+  </form>
+  </fieldset>
+</main>
+<footer>
+  <div class="d-flex justify-content-center">
+    <span>&copy; Copyright 2021</span>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

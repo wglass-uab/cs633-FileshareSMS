@@ -1,0 +1,46 @@
+html {
+  height: 100%;
+}
+
+body {
+  font-size: 100%;
+  color:#041e42;
+  height: 50%;
+  font-family: BogleWeb,Helvetica Neue,Helvetica,Arial,sans-serif;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  background-color: #E8E8E8;
+}
+
+.login-form {
+  align-self: flex-start;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+
+.login-form-field::placeholder {
+  color: #3a3a3a;
+}
+
+.login-form-field {
+  width: 180%;
+  height: 90%;
+  margin-bottom: 25px;
+  outline: 1px;
+  font-size: 100%;
+  padding: 0px 0px 5px 5px;
+}
+
+#login-form-submit, #signin-form-submit {
+  font-size: 100%;
+  width: 180%;
+  padding: 7px;
+  color: white;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  background-color: #041e42;
+  cursor: pointer;
+  box-shadow: 0 0 0 1pt #041e42;
+}
