@@ -1,13 +1,13 @@
 //https://codepen.io/diegoleme/pen/surIK
 
-$(function (){
-  var $password = $('#password-field');
-  var $username = $('#username-field');
+$(() => {
+  const $password = $('#password-field'),
+      $username = $('#username-field');
 
-  $('#login-form-submit').on('click', function(e) {
+  $('#login-form-submit').on('click', (e) => {
     e.preventDefault();
 
-    var user = {
+    const user = {
       password: $password.val(),
       username: $username.val(),
     };
@@ -16,12 +16,8 @@ $(function (){
       type: 'POST',
       url: '/api/login',
       data: user,
-      success: function() {
-        window.location = "/share";
-      },
-      error: function() {
-        alert("Username or Password incorrect");
-      }
+      success: () => window.location = "/share",
+      error: () => alert("Username or Password incorrect")
     })
   })
 })

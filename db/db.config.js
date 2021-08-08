@@ -1,9 +1,9 @@
 const mysql = require('mysql'),
       dbConfig = {
-        host: 'filesharedb.cg77c5xbhksi.us-east-1.rds.amazonaws.com',
+        host: 'filesharedb1.cg77c5xbhksi.us-east-1.rds.amazonaws.com',
         user: 'fileshare',
         password: 'fileshare',
-        database: 'fileshare'
+        database: 'filesharedb1'
       },
       connection = mysql.createConnection(dbConfig);
 

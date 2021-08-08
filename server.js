@@ -3,6 +3,7 @@ const express = require("express"),
       session = require("express-session"),
       bodyParser = require("body-parser"),
       multer = require('multer'),
+      multerS3 = require('multer-s3'),
       fs = require('fs'),
       http = require("http"),
       AWS = require('aws-sdk');
@@ -15,22 +16,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //import DB methods for insert and select
 const {insertIntoUsers, selectFromUsersByLogin, insertIntoShares} = require("./db/database.js");
 
-//Configure multer with the local tmp directory for uploads
-const storage = multer.diskStorage({
-    destination : 'uploads/',
-    filename: function (req, file, cb) {
-      cb(null, file.originalname);
-    }
-});
-const upload = multer({ storage: storage });
+AWS.config.update({region: "us-east-1"})
 
-//Configure AWS credentials
-AWS.config.update({
-  accessKeyId: "ASIAU2XBVV2JHZFBLO5N", // Access key ID
-  secretAccesskey: "pVfoeZfJrLQR2eGVcupXZuGtClq7jE4imyahfuN3", // Secret access key
-  region: "us-east-1" //Region
+var s3 = new AWS.S3({
+   accessKeyId: "ASIAU2XBVV2JJM3T3JWN",
+   secretAccessKey: "qflZWNluoENoBPdgIBLyUj7PBbOWVZ5axywg4Tyo",
+   Bucket:"uab-cs633-weglass-fileshare-bucket",
+   sessionToken: `FwoGZXIvYXdzEI7//////////wEaDNAthPOtIgQZPkTuRiK+AWjKXwNGcsbN6VMg0esAyd9lFQvQDK9+mMPv3dQlaA8nS2hEwd81IIkTe06aRVQjZ9WKDkFVO3ksoDRbXjuQwzeMlcVjt33OtvoAGBE651xPE6qLnJzbqPg2lSdGZ1B7INqlNLIqaFUxvt+6eR09KWRTpGt7ALsEsVHpTB2lKEgBSc0mmUs4podZRX1+ss9IZO1RDUomLvZFaeAl5jsPuP37c5l9uxcpP+Tg1hTonzRgBBu5n8c33g2zNyqGRHkoxoTBiAYyLV2toL5ypJvvkpeymNfbKkcHMiCbZPlZd5FvGpe//IMgQJKuX4mwbbU1L9sezQ==`
 })
-const s3 = new AWS.S3();
+var upload = multer({
+   storage: multerS3({
+       s3: s3,
+       bucket:"uab-cs633-weglass-fileshare-bucket",
+       metadata: function (req, file, cb) {
+           cb(null, { fieldName: file.fieldname });
+       },
+       key: function (req, file, cb) {
+           cb(null, Date.now().toString())
+       }
+   })
+})
 
 
 // Configure application security
@@ -41,7 +46,7 @@ app.use(session({
 }));
 
 const allowedPaths = ['/login','/signup'];
-app.use(function(req,res,next){
+app.use((req,res,next) => {
   try {
     const path = req.originalUrl;
     if (req.session.loggedin
@@ -64,7 +69,7 @@ app.post("/api/login", (req, res) => {
   }
   
   selectFromUsersByLogin(login, (err,rows) => {
-    if (err || !rows) {
+    if (err || !rows || rows.length == 0) {
       res.sendStatus(401);
     } else {
       req.session.loggedin = true;
@@ -100,16 +105,24 @@ app.post("/api/signup", (req,res) => {
     })
   } catch (error) {
     console.error(error)
-        res.sendStatus(500);
+    res.sendStatus(500);
   }
 })
   
 // Client Routes
 app.get("/", (req,res) => res.redirect("/login"))
 
-app.post('/api/upload', upload.single('sharefile'), async (req, res) => {
+app.post('/api/upload', upload.single('sharefile'), (req, res) => {
   
-  const source = req.file.path, 
+  try{
+    console.log("fileUploaded!");
+    console.log(JSON.stringify(req.file));
+    res.sendStatus(200);
+  } catch(err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+  /*const source = req.file.path, 
         targetName = req.file.filename;
 
   fs.readFile(source, (err, filedata) => {
@@ -140,7 +153,7 @@ app.post('/api/upload', upload.single('sharefile'), async (req, res) => {
               .then((data) => console.log("MessageID is " + data.MessageId))
               .catch((err) => console.error(err, err.stack))
             );
-            */
+            
             
           }
         });
@@ -148,7 +161,7 @@ app.post('/api/upload', upload.single('sharefile'), async (req, res) => {
       else{
         console.log({'err':err});
       }
-    });
+    });*/
 })
 
 http.createServer(app).listen(3000)
