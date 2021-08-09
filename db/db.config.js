@@ -3,7 +3,8 @@ const mysql = require('mysql'),
         host: 'filesharedb1.cg77c5xbhksi.us-east-1.rds.amazonaws.com',
         user: 'fileshare',
         password: 'fileshare',
-        database: 'filesharedb1'
+        database: 'fileshare',
+        port:3306
       },
       connection = mysql.createConnection(dbConfig);
 
