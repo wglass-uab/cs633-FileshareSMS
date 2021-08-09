@@ -6,34 +6,23 @@ const express = require("express"),
       multerS3 = require('multer-s3'),
       fs = require('fs'),
       http = require("http"),
-      AWS = require('aws-sdk');
       app = express();
       
 app.use(express.static("client",{extensions:['html']}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//import DB methods for insert and select
+//import AWS and DB methods for insert and select
 const {insertIntoUsers, selectFromUsersByLogin, insertIntoShares} = require("./db/database.js");
 
-AWS.config.update({region: "us-east-1"})
+const {sns, s3} = require('./aws/config.js')
 
-var s3 = new AWS.S3({
-   accessKeyId: "ASIAU2XBVV2JJM3T3JWN",
-   secretAccessKey: "qflZWNluoENoBPdgIBLyUj7PBbOWVZ5axywg4Tyo",
-   Bucket:"uab-cs633-weglass-fileshare-bucket",
-   sessionToken: `FwoGZXIvYXdzEI7//////////wEaDNAthPOtIgQZPkTuRiK+AWjKXwNGcsbN6VMg0esAyd9lFQvQDK9+mMPv3dQlaA8nS2hEwd81IIkTe06aRVQjZ9WKDkFVO3ksoDRbXjuQwzeMlcVjt33OtvoAGBE651xPE6qLnJzbqPg2lSdGZ1B7INqlNLIqaFUxvt+6eR09KWRTpGt7ALsEsVHpTB2lKEgBSc0mmUs4podZRX1+ss9IZO1RDUomLvZFaeAl5jsPuP37c5l9uxcpP+Tg1hTonzRgBBu5n8c33g2zNyqGRHkoxoTBiAYyLV2toL5ypJvvkpeymNfbKkcHMiCbZPlZd5FvGpe//IMgQJKuX4mwbbU1L9sezQ==`
-})
-var upload = multer({
+const upload = multer({
    storage: multerS3({
        s3: s3,
        bucket:"uab-cs633-weglass-fileshare-bucket",
-       metadata: function (req, file, cb) {
-           cb(null, { fieldName: file.fieldname });
-       },
-       key: function (req, file, cb) {
-           cb(null, Date.now().toString())
-       }
+       metadata: (req, file, cb) => cb(null, { fieldName: file.fieldname }),
+       key: (req, file, cb) => cb(null, Date.now().toString())
    })
 })
 
@@ -115,54 +104,51 @@ app.get("/", (req,res) => res.redirect("/login"))
 app.post('/api/upload', upload.single('sharefile'), (req, res) => {
   
   try{
-    console.log("fileUploaded!");
-    console.log(JSON.stringify(req.file));
-    res.sendStatus(200);
+    console.log("\nFileUpload | " + JSON.stringify(req.file)+"\n");
+    
+    const s3Link = "/download/" + req.file.key,
+          phoneNumbers = Array.from(req.body.phone).filter(number => number && number.length == 10)
+    
+    phoneNumbers.map(number => {
+      sns.publish({
+        Message: s3Link, 
+        PhoneNumber: '+1' + number,
+      })
+      .promise()
+      .then((data) => console.log("\nSMS sent for number +1" + number + " | " + JSON.stringify(data) + "\n"))
+      .catch((err) => console.error(err, err.stack))
+      return number
+    }).map(number => insertIntoShares({
+      email: req.session.username, 
+      filekey: req.file.key,
+      phone: number
+    }, (err, rows) => {
+       if (err || !rows) console.error(`Failed insert for email: ${req.session.username}, filekey: ${req.file.key}, phone: ${number}`)
+    }));   
+    
   } catch(err) {
     console.error(err);
-    res.sendStatus(500);
   }
-  /*const source = req.file.path, 
-        targetName = req.file.filename;
-
-  fs.readFile(source, (err, filedata) => {
-      if (!err) {
-        const putParams = {
-            Bucket      : 'uab-cs633-weglass-fileshare-bucket',
-            Key         : targetName,
-            Body        : filedata
-        };
-        s3.putObject(putParams, (err, data) => {
-          if (err) {
-            console.log('Could nor upload the file. Error :',err);
-            return res.send({success:false});
-          } 
-          else{
-            fs.unlink(source);
-            console.log('Successfully uploaded the file');
-            
-            //Send Text Messages
-            /*
-            const s3Link = data.Location;
-            Array.from(req.body.phone).forEach(number => 
-              new AWS.SNS({apiVersion: '2010-03-31'})
-              .publish({
-                Message: 'TEXT_MESSAGE', 
-                PhoneNumber: '+1' + number,
-              }).promise()
-              .then((data) => console.log("MessageID is " + data.MessageId))
-              .catch((err) => console.error(err, err.stack))
-            );
-            
-            
-          }
-        });
-      }
-      else{
-        console.log({'err':err});
-      }
-    });*/
+  
+  res.redirect("/share");
 })
+
+app.get('/download/:key', function(req, res){        
+  var getParams = {
+      Bucket: 'uab-cs633-weglass-fileshare-bucket',
+      Key: req.params.key
+  }
+  
+  s3.getObject(getParams, function(err, data) {
+      if (err) {
+        console.log(err, err.stack);
+        res.sendStatus(404);
+        return;
+      }
+      let objectData = data.Body.toString('utf-8');
+      res.download(objectData);
+  });
+});
 
 http.createServer(app).listen(3000)
 console.log("Server Started listening on port: 3000")

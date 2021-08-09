@@ -22,9 +22,9 @@ function selectFromUsersByLogin(login, next) {
   query("select * from users where email = ? and password = ?", [login.email, md5(login.password)], next);
 }
 
-function insertIntoShares(shares, next) {
-  const newShare = [shares.email, shares.fileId, Array.from(shares.numbers).join(',')];
-  query('INSERT INTO shares (email, fileId, numbers) VALUES (?,?,?)', newShare, next);
+function insertIntoShares(share, next) {
+  const newShare = [share.email, share.filekey, share.phone];
+  query('INSERT INTO shares (email, filekey, phone) VALUES (?,?,?)', newShare, next);
 }
 
 module.exports = {insertIntoUsers, selectFromUsersByLogin, insertIntoShares};
