@@ -24,7 +24,7 @@ function selectFromUsersByLogin(login, next) {
 
 function insertIntoShares(share, next) {
   const newShare = [share.email, share.filekey, share.phone];
-  query('INSERT INTO shares (email, filekey, phone) VALUES (?,?,?)', newShare, next);
+  query('INSERT INTO shares (email, phone, filekey) VALUES (?,?,?)', newShare, next);
 }
 
 module.exports = {insertIntoUsers, selectFromUsersByLogin, insertIntoShares};
