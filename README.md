@@ -1,21 +1,25 @@
-# SUMCS621-Group11
+# SUMCS633-weglass
 
 ## Summary
 
-This simple inventory application is a forray into SPA technologies. 
-Inventory is loaded into state from json, and available for search. 
-Checkout sends an email of the order details to a target user
+This simple filesharing app uses aws SDK to push and pull S3 objects from a Bucker
 
-## Technologies
-* Scripting
-  * jQuery - https://api.jquery.com/
-* Styling
-  * Bootstrap - https://getbootstrap.com/docs/5.0/getting-started/introduction/
-  * Flex-box styling - https://css-tricks.com/snippets/css/a-guide-to-flexbox/
-* Hosting
-  * Express.js - https://expressjs.com/
-  * Node.js - https://nodejs.org/en/
-* DB
-  * SQLite3 - https://www.npmjs.com/package/sqlite3
-* Emailing
-  * nodemailer - https://nodemailer.com/
+To Run:
+`npm install` from package.json directory
+`node server` from the same directory.
+
+The website has been left standing at http://ec2-100-25-3-86.compute-1.amazonaws.com:3000/
+
+It supports user signup and sharing of many file formats.
+
+File retrieval is also available through a get endpoint but I was unable to get sms or emails working
+
+To get an object:
+* First share a file.
+  * On successful share, a query value has been added to the url with key "key"
+  * visiting http://ec2-100-25-3-86.compute-1.amazonaws.com:3000/download/key allows you to download the shared file.
+
+This project has working requirements:
+* Deployed to EC2 Container
+* Relies on RDS db instance (MySQL)
+* Pushes objects into and gets from an S3 bucket

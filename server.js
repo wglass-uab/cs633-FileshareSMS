@@ -126,11 +126,13 @@ app.post('/api/upload', upload.single('sharefile'), (req, res) => {
        if (err || !rows) console.error(`Failed insert for email: ${req.session.username}, filekey: ${req.file.key}, phone: ${number}`)
     }));   
     
+    res.redirect("/share?key=" + req.file.key);
+    return;
   } catch(err) {
     console.error(err);
   }
   
-  res.redirect("/share");
+  res.redirect("/share?");
 })
 
 app.get('/download/:key', function(req, res){        
