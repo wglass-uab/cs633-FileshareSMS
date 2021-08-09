@@ -1,6 +1,6 @@
 {
-	"name": "inventory",
-	"description": "The best to-do inventory app in the history of the world",
+	"name": "fileshare",
+	"description": "The best fileshare app in the history of the world",
 	"version": "0.0.1",
 	"dependencies": {
 		"aws-sdk": "^2.963.0",
